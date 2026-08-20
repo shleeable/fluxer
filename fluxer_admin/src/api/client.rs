@@ -167,53 +167,6 @@ impl AdminApiClient {
         self.parse_response(response).await
     }
 
-    pub async fn post_void(&self, path: &str, body: Option<&serde_json::Value>) -> ApiResult<()> {
-        self.post_void_with_reason(path, body, None).await
-    }
-
-    pub async fn post_void_with_reason(
-        &self,
-        path: &str,
-        body: Option<&serde_json::Value>,
-        audit_log_reason: Option<&str>,
-    ) -> ApiResult<()> {
-        let builder =
-            Self::with_audit_log_reason(self.request(Method::POST, path, None), audit_log_reason);
-        let response = Self::send_request(Self::with_json_body(builder, body)).await?;
-        Self::parse_void_response(response).await
-    }
-
-    pub async fn patch<T: DeserializeOwned>(
-        &self,
-        path: &str,
-        body: Option<&serde_json::Value>,
-    ) -> ApiResult<T> {
-        let builder = Self::with_json_body(self.request(Method::PATCH, path, None), body);
-        let response = Self::send_request(builder).await?;
-        self.parse_response(response).await
-    }
-
-    pub async fn delete_void(&self, path: &str, body: Option<&serde_json::Value>) -> ApiResult<()> {
-        let builder = Self::with_json_body(self.request(Method::DELETE, path, None), body);
-        let response = Self::send_request(builder).await?;
-        Self::parse_void_response(response).await
-    }
-
-    async fn parse_void_response(response: reqwest::Response) -> ApiResult<()> {
-        if response.status().is_success() {
-            Ok(())
-        } else {
-            let status = response.status().as_u16();
-            let text = response.text().await.map_err(|error| {
-                ApiError::Network(format!("failed to read error response body: {error}"))
-            })?;
-            Err(ApiError::Http {
-                status,
-                message: text,
-            })
-        }
-    }
-
     pub(crate) fn generated(&self) -> &crate::api::generated::GeneratedClient {
         &self.generated
     }
