@@ -3,35 +3,9 @@
 use crate::api::generated::types as generated_types;
 
 use super::client::{AdminApiClient, ApiError, ApiResult};
-use super::types::{
-    ListReportsResponse, ReportEntry, ResolveReportResponse, SearchReportsResponse,
-};
+use super::types::{ReportEntry, ResolveReportResponse, SearchReportsResponse};
 
 impl AdminApiClient {
-    pub async fn list_reports(
-        &self,
-        status: Option<i32>,
-        limit: u32,
-        offset: Option<u32>,
-    ) -> ApiResult<ListReportsResponse> {
-        let body = generated_types::ListReportsRequest {
-            limit: Some(
-                crate::api::generated::nonzero_u32(limit, "limit").map_err(ApiError::Parse)?,
-            ),
-            offset: offset.map(i64::from),
-            status: status
-                .map(generated_types::ReportStatus::try_from)
-                .transpose()
-                .map_err(|e| ApiError::Parse(e.to_string()))?,
-        };
-        let response = self
-            .generated()
-            .list_reports(&body)
-            .await
-            .map_err(|e| self.generated_error(e))?;
-        self.generated_value(response.into_inner())
-    }
-
     pub async fn get_report(&self, report_id: &str) -> ApiResult<ReportEntry> {
         let response = self
             .generated()
