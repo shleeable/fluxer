@@ -132,11 +132,6 @@ pub struct SearchReportsResponse {
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct ListReportsResponse {
-    pub reports: Vec<ReportEntry>,
-}
-
-#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct ResolveReportResponse {
     pub report_id: String,
     pub status: i32,
